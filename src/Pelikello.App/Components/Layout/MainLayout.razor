@@ -1,0 +1,33 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using Pelikello.App.Components.Pages.Icons
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+@{
+  var isLoginPage = Navigation.Uri.Contains("/login");
+}
+@if (!isLoginPage)
+{
+  <LoginLogout />
+}
+
+<main class="w-full">
+  <article class="px-4">
+    <h1 class="text-4xl font-bold text-center mt-16 mb-8">Pelikello</h1>
+    @Body
+  </article>
+</main>
+
+<div id="blazor-error-ui" data-nosnippet>
+  An unhandled error has occurred.
+  <a href="." class="reload">Reload</a>
+  <span class="dismiss">🗙</span>
+</div>
+
+<AuthorizeView>
+  <Authorized>
+    <Fab />
+    <Menu />
+  </Authorized>
+</AuthorizeView>

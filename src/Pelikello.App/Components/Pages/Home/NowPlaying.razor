@@ -1,0 +1,53 @@
+@using System.Threading
+@using Pelikello.App.Tracking
+@implements IDisposable
+@inject IPlaySessionTracker PlaySessionTracker
+@inject TrackingEvents TrackingEvents
+
+<div class="mt-4">
+  <h2 class="text-2xl font-bold text-center mb-4">Now Playing</h2>
+  @if (sessions is null)
+  {
+    <div class="text-center text-gray-600">Loading...</div>
+  }
+  else if (!sessions.Any())
+  {
+    <div class="text-center text-gray-600">No games running</div>
+  }
+  else
+  {
+    @foreach (var session in sessions)
+    {
+      <div @key="session.Id" class="text-center">
+        <div class="text-xl font-semibold">@session.GameName</div>
+        <div class="text-gray-600">@session.Duration.ToString(@"hh\:mm")</div>
+      </div>
+    }
+  }
+</div>
+
+@code {
+  private List<PlaySession>? sessions;
+
+  protected override async Task OnInitializedAsync()
+  {
+    TrackingEvents.PlaySessionsUpdated += OnSessionsUpdated;
+    await UpdateActiveSessions();
+  }
+
+  private async void OnSessionsUpdated()
+  {
+    await UpdateActiveSessions();
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async Task UpdateActiveSessions()
+  {
+    sessions = await PlaySessionTracker.GetActiveSessions();
+  }
+
+  public void Dispose()
+  {
+    TrackingEvents.PlaySessionsUpdated -= OnSessionsUpdated;
+  }
+}

@@ -1,0 +1,139 @@
+---
+description: 
+globs: *.cs
+alwaysApply: false
+---
+# Unified C#/.NET/Blazor Development Ruleset
+
+You are a senior developer specializing in **Blazor**, **ASP.NET Core**, and **Entity Framework Core**, working in **C#** with modern tooling like **Visual Studio Enterprise** and **Cursor AI**.
+
+---
+
+## Development Workflow and Environment
+
+- Use **Visual Studio Enterprise** for:
+  - Running, debugging, and testing Blazor and .NET apps.
+  - Performance profiling and diagnostics.
+- Perform code editing, AI pair programming, and refactoring in **Cursor AI**.
+- Recognize that Visual Studio is the authoritative tool for compiling, testing, and app launch.
+
+---
+
+## Code Style and Structure
+
+- Write **idiomatic, concise, and efficient C# and Blazor code**.
+- Follow official ](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions).
+- Structure your solution by responsibilities: `Controllers`, `Models`, `Services`, `Components`, etc.
+- Use Razor Components for UI with proper **Separation of Concerns** (e.g., move logic to code-behind or services).
+- Prefer **object-oriented and functional programming patterns** as appropriate.
+- Utilize **LINQ and lambda expressions** for collection processing.
+
+---
+
+## Naming Conventions
+
+- **PascalCase**: Class names, Razor components, method names, public members.
+- **camelCase**: Private fields, local variables.
+- **UPPERCASE**: Constants.
+- Prefix **interfaces with `I`** (e.g., `IUserService`, `IGameTracker`).
+
+---
+
+## Blazor-Specific Guidelines
+
+- Use component lifecycle hooks: `OnInitializedAsync`, `OnParametersSetAsync`, etc.
+- Use `@bind` and `EventCallback<T>` for data binding and interactivity.
+- Optimize UI performance with:
+  - `StateHasChanged()` for manual updates.
+  - `ShouldRender()` to avoid unnecessary re-renders.
+- Use **Cascading Parameters** and **Scoped Services** for state sharing.
+- Prefer inline code for small components, extract logic for complex ones.
+
+---
+
+## API Design and Integration
+
+- Follow **RESTful design** with attribute routing.
+- Use `HttpClient` or service abstractions to call APIs.
+- Implement **versioning**, action filters, and middleware for cross-cutting concerns.
+- Handle API errors with `try-catch`, proper status codes, and user feedback.
+- Document APIs using **Swagger/OpenAPI** and XML comments.
+
+---
+
+## Security
+
+- Use **HTTPS**, proper **CORS policies**, and **Authentication/Authorization** middleware.
+- For APIs: Use **JWT tokens** and secure endpoints.
+- In Blazor, implement auth via **ASP.NET Identity**, JWT, or external providers.
+
+---
+
+## Testing and Debugging
+
+- Use **Visual Studio Enterprise** for:
+  - Unit and integration tests.
+  - Debugging both UI and backend.
+  - Performance diagnostics.
+- Test with `xUnit`, `NUnit`, or `MSTest`.
+- Use `Moq` or `NSubstitute` for mocking.
+- Validate UI state in Blazor with tools like `ErrorBoundary`.
+
+---
+
+## Error Handling and Validation
+
+- Use **exceptions only for exceptional cases**, not control flow.
+- Implement global exception handling middleware in ASP.NET Core.
+- Log errors using built-in logging or structured logging libraries.
+- Use **Data Annotations** or **FluentValidation** for model/form validation.
+
+---
+
+## Performance and Optimization
+
+- Use **async/await** for all I/O-bound operations.
+- Avoid **N+1** queries in EF Core; use `.Include()` wisely.
+- Implement **pagination** for large datasets.
+- Profile Razor component performance; use `@key` and `ShouldRender()` strategically.
+
+---
+
+## Caching Strategies
+
+- Use `IMemoryCache` for lightweight in-memory caching.
+- Use `IDistributedCache` (e.g., Redis) for shared state in multi-instance apps.
+- In Blazor:
+  - **WebAssembly**: Use `localStorage`/`sessionStorage`.
+  - **Server**: Use `Scoped Services` or state containers.
+
+---
+
+## State Management
+
+- Use:
+  - **EventCallbacks** and **Cascading Parameters** for basic state sharing.
+  - **Blazored.LocalStorage**, **Blazored.SessionStorage** for persistence in WASM.
+  - **Fluxor** or **BlazorState** for advanced state in large apps.
+- Structure state logic cleanly to avoid re-renders and facilitate debugging.
+
+---
+
+## Modern C# Features
+
+- Use C# 10+ features:
+  - `record` types
+  - Global `using` statements
+  - Pattern matching
+  - Null-coalescing and conditional access
+  - `var` when type is obvious
+
+---
+
+## Key Conventions and Practices
+
+- Use **Dependency Injection** for all services and components.
+- Use **AutoMapper** where appropriate for object mapping.
+- Implement background work using `IHostedService` or `BackgroundService`.
+- Stay up to date with **Microsoft ASP.NET Core documentation and guidance**.
+- Use `Guid` for database ids and use `Guid.CreateVersion7()` for the values.

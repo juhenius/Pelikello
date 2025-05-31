@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Pelikello Project Rule
+
+- The project must adhere to the architecture and design principles defined in doc/ARCHITECTURE.md.
+- All features, code, and design decisions should prioritize privacy, local-only operation, transparency, and extensibility as outlined in the architecture document.
+- Any new code or feature must not introduce cloud dependencies, third-party analytics, or internet-based remote access.
+- Refer to doc/ARCHITECTURE.md for detailed component descriptions, technology stack, and guiding principles.

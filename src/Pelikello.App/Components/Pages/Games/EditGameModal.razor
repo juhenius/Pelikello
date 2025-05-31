@@ -1,0 +1,71 @@
+@using Pelikello.App.Components.Pages.Icons
+@using Pelikello.App.Tracking
+@inject IGameRepository GameRepository
+
+<div class="fixed inset-0 bg-white bg-opacity-40 z-40 flex items-center justify-center">
+  <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+    <button type="button" @onclick="Cancel" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+      <CloseIcon />
+    </button>
+
+    <div class="w-xs max-w-xs">
+      <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+      <InputText id="name" @bind-Value="model.Name" placeholder="Enter game name"
+        class="w-full border rounded px-4 py-2 mb-4" />
+
+      <label for="pattern" class="block text-sm font-medium text-gray-700 mb-1">Pattern</label>
+      <input id="pattern" @bind-Value="model.Pattern" @bind-Value:event="oninput" placeholder="Enter game pattern"
+        class="w-full border rounded px-4 py-2 mb-4" />
+
+      <ProcessMatchList Pattern="@model.Pattern" />
+
+      <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        Save Changes
+      </button>
+    </div>
+
+    <div class="text-red-500 text-center">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+    </div>
+  </EditForm>
+</div>
+
+@code {
+  [Parameter]
+  public Game? Game { get; set; }
+
+  [Parameter]
+  public EventCallback OnClose { get; set; }
+
+  private GameModel model = new();
+
+  protected override void OnParametersSet()
+  {
+    if (Game != null)
+    {
+      model = new GameModel
+      {
+        Name = Game.Name,
+        Pattern = Game.Pattern
+      };
+    }
+  }
+
+  private async Task HandleSubmit()
+  {
+    if (Game != null)
+    {
+      Game.Name = model.Name;
+      Game.Pattern = model.Pattern;
+      await GameRepository.UpdateGame(Game);
+    }
+
+    await OnClose.InvokeAsync();
+  }
+
+  private async void Cancel()
+  {
+    await OnClose.InvokeAsync();
+  }
+}

@@ -1,0 +1,122 @@
+@page "/statistics"
+@using Microsoft.AspNetCore.Authorization
+@using Pelikello.App.Tracking
+@using Microsoft.AspNetCore.Components.Forms
+@implements IDisposable
+@inject IPlaySessionTracker PlaySessionTracker
+@inject TrackingEvents TrackingEvents
+@attribute [Authorize]
+
+<div class="flex flex-col items-center mt-8 text-left whitespace-nowrap">
+  <h2 class="text-2xl font-bold mb-4">Statistics</h2>
+
+  <div class="w-full mb-6">
+    <label class="block mb-2 font-semibold">Show statistics for:
+      <InputSelect class="ml-2 border rounded px-2 py-1" @bind-Value="selectedDays" @onchange="OnDaysChanged">
+        @foreach (var n in dayOptions)
+        {
+          <option value="@n">Last @n day@(n > 1 ? "s" : "")</option>
+        }
+      </InputSelect>
+    </label>
+    <div class="overflow-x-scroll mt-4">
+      <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th class="px-4 py-2 border-b">Game</th>
+            <th class="px-4 py-2 border-b">Total Playtime</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var row in combinedPlaytimes)
+          {
+            <tr @key="row.GameName">
+              <td class="px-4 py-2 border-b">@row.GameName</td>
+              <td class="px-4 py-2 border-b">@row.TotalDuration.ToString(@"hh\:mm\:ss")</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="w-full overflow-x-scroll">
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 border-b">Game</th>
+          <th class="px-4 py-2 border-b">Date</th>
+          <th class="px-4 py-2 border-b">Duration</th>
+          <th class="px-4 py-2 border-b">Timer</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var session in sessions)
+        {
+          <tr @key="session.Id">
+            <td class="px-4 py-2 border-b">@session.GameName</td>
+            <td class="px-4 py-2 border-b">@session.StartTime.ToString(@"MM-dd hh\:mm")</td>
+            <td class="px-4 py-2 border-b">@session.Duration.ToString(@"hh\:mm\:ss")</td>
+            <td class="px-4 py-2 border-b">@session.TimerActive</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@code {
+  private List<PlaySession> sessions = new();
+  private List<CombinedPlaytimeRow> combinedPlaytimes = new();
+  private int selectedDays = 7;
+  private readonly int[] dayOptions = new[] { 1, 7, 30 };
+
+  protected override async Task OnInitializedAsync()
+  {
+    TrackingEvents.PlaySessionsUpdated += OnPlaySessionsUpdated;
+    await LoadSessions();
+  }
+
+  private async void OnPlaySessionsUpdated()
+  {
+    await LoadSessions();
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async Task OnDaysChanged(ChangeEventArgs e)
+  {
+    if (int.TryParse(e.Value?.ToString(), out var days))
+    {
+      selectedDays = days;
+      await LoadSessions();
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  private async Task LoadSessions()
+  {
+    var history = await PlaySessionTracker.GetHistory(TimeSpan.FromDays(selectedDays));
+    sessions = history.OrderByDescending(s => s.StartTime).ToList();
+
+    combinedPlaytimes = history
+    .GroupBy(s => s.GameName)
+    .Select(g => new CombinedPlaytimeRow
+    {
+      GameName = g.Key,
+      TotalDuration = new TimeSpan(g.Sum(s => s.Duration.Ticks))
+    })
+    .OrderByDescending(r => r.TotalDuration)
+    .ToList();
+  }
+
+  public void Dispose()
+  {
+    TrackingEvents.PlaySessionsUpdated -= OnPlaySessionsUpdated;
+  }
+
+  private class CombinedPlaytimeRow
+  {
+    public string GameName { get; set; } = string.Empty;
+    public TimeSpan TotalDuration { get; set; }
+  }
+}

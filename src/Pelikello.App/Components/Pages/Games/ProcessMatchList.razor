@@ -1,0 +1,62 @@
+@using System.Diagnostics
+@using Pelikello.App.Tracking
+
+@if (!string.IsNullOrWhiteSpace(Pattern))
+{
+  <div class="mb-4">
+    <div class="text-xs text-gray-500 mb-1">Processes matching pattern:</div>
+    <ul class="w-full max-h-32 overflow-y-auto overflow-x-scroll border rounded bg-gray-50 px-2 py-1 text-xs">
+      @if (matchingProcesses.Count == 0)
+      {
+        <li class="text-gray-400">No matches</li>
+      }
+      else
+      {
+        @foreach (var proc in matchingProcesses)
+        {
+          <li>@proc</li>
+        }
+      }
+    </ul>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public string? Pattern { get; set; }
+
+  private List<string> matchingProcesses = new();
+  private string? lastPattern;
+
+  protected override void OnParametersSet()
+  {
+    if (Pattern != lastPattern)
+    {
+      lastPattern = Pattern;
+      UpdateMatchingProcesses();
+    }
+  }
+
+  private void UpdateMatchingProcesses()
+  {
+    matchingProcesses = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Pattern))
+    {
+      var matcher = new ProcessMatcher();
+      try
+      {
+        var processes = Process.GetProcesses();
+        matchingProcesses = processes
+        .Select(p => p.ProcessName)
+        .Distinct()
+        .Where(name => matcher.IsMatch(Pattern, name))
+        .OrderBy(x => x)
+        .ToList();
+      }
+      catch
+      {
+        // Ignore errors (e.g., access denied)
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+@implements IDisposable
+@inject Pelikello.App.Timing.GameTimer GameTimer
+
+<div class="flex flex-col items-center">
+  <div class="text-6xl font-mono mb-2 @(GameTimer.Running ? "text-green-600" : "text-red-600")"
+    data-testid="timer-display">
+    @GameTimer.TimeLeft.ToString(@"hh\:mm\:ss")
+  </div>
+  <div class="text-gray-500 text-sm mb-4">
+    @if (GameTimer.Running)
+    {
+      <span>Running - </span>
+    }
+    else
+    {
+      <span>Paused - </span>
+    }
+    Ends at @(DateTime.Now.Add(GameTimer.TimeLeft).ToString("HH:mm"))
+  </div>
+</div>
+
+@code {
+  private CancellationTokenSource? updateTokenSource;
+
+  protected override void OnInitialized()
+  {
+    GameTimer.TimeChanged += OnTimeChanged;
+
+    updateTokenSource = new();
+    _ = RunPeriodicUpdates(updateTokenSource.Token);
+  }
+
+  private async Task RunPeriodicUpdates(CancellationToken ct)
+  {
+    var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+    while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
+    {
+      await InvokeAsync(StateHasChanged);
+    }
+  }
+
+  private void OnTimeChanged()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    GameTimer.TimeChanged -= OnTimeChanged;
+    updateTokenSource?.Cancel();
+  }
+}

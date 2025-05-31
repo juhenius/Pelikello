@@ -1,0 +1,32 @@
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Pelikello.App.Components.Pages.Icons
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="fixed top-4 right-4">
+  <AuthorizeView>
+    <Authorized>
+      <button class="text-gray-400 hover:text-gray-500" @onclick="Logout">
+        <LogoutIcon />
+      </button>
+    </Authorized>
+    <NotAuthorized>
+      <button class="text-gray-400 hover:text-gray-500" @onclick="Login">
+        <LoginIcon />
+      </button>
+    </NotAuthorized>
+  </AuthorizeView>
+</div>
+
+@code {
+  private void Login()
+  {
+    Navigation.NavigateTo("/login");
+  }
+  private async void Logout()
+  {
+    await JS.InvokeVoidAsync("logout");
+    Navigation.NavigateTo("/", forceLoad: true);
+  }
+}

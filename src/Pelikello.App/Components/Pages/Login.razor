@@ -1,0 +1,64 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Pelikello.App.Authentication
+@using Pelikello.App.Components.Pages.Icons
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@attribute [AllowAnonymous]
+
+<div class="flex flex-col items-center">
+  <EditForm Model="@model" OnValidSubmit="HandleLogin">
+    <button type="button" @onclick="CancelLogin" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+      <CloseIcon />
+    </button>
+
+    <div class="w-full max-w-xs">
+      <label for="passcode" class="block text-sm font-medium text-gray-700 mb-1">Passcode</label>
+      <InputText id="passcode" @bind-Value="model.Passcode" type="password" placeholder="Enter passcode"
+        class="w-full border rounded px-4 py-2 mb-4" />
+
+      <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        Login
+      </button>
+    </div>
+
+    <div class="text-red-500 text-center">
+      <DataAnnotationsValidator />
+      <ValidationSummary />
+
+      @if (!string.IsNullOrEmpty(error))
+      {
+        <div>@error</div>
+      }
+    </div>
+  </EditForm>
+</div>
+
+
+@code {
+  private LoginModel model = new();
+  private string? error;
+
+  [Parameter]
+  [SupplyParameterFromQuery]
+  public string? ReturnUrl { get; set; }
+
+  private async Task HandleLogin()
+  {
+    var success = await JS.InvokeAsync<bool>("login", model);
+    if (success)
+    {
+      Navigation.NavigateTo(ReturnUrl ?? "/", forceLoad: true);
+    }
+    else
+    {
+      error = "Invalid passcode.";
+    }
+  }
+
+  private void CancelLogin()
+  {
+    Navigation.NavigateTo("/");
+  }
+}

@@ -1,0 +1,31 @@
+@implements IDisposable
+@inject Pelikello.App.Timing.GameTimer GameTimer
+
+<div class="flex flex-col items-center">
+  <div class="flex gap-4">
+    <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+      @onclick="() => GameTimer.SubtractTime(TimeSpan.FromMinutes(5))">-5 min</button>
+    <button class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+      @onclick="GameTimer.TogglePause">@(GameTimer.Running ? "Pause" : "Resume")</button>
+    <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+      @onclick="() => GameTimer.AddTime(TimeSpan.FromMinutes(5))">+5 min</button>
+  </div>
+</div>
+
+@code {
+  protected override void OnInitialized()
+  {
+    GameTimer.RunningChanged += OnRunningChanged;
+  }
+
+  private void OnRunningChanged()
+  {
+    Console.WriteLine("RunningChanged");
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    GameTimer.RunningChanged -= OnRunningChanged;
+  }
+}
