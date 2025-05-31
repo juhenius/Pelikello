@@ -25,6 +25,7 @@ public static class DependencyInjection
     }
 #endif
     services.AddSingleton<ShutdownTrigger>();
+    services.AddHostedService<ShutdownTriggerHostedService>();
     return services;
   }
 }
